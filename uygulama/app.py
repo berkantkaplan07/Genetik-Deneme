@@ -1,18 +1,3 @@
-Brom, bu hata gerçekten çok basit bir sebepten oluyor: Kodu kopyalarken "Tümünü Seç" yapmadığın için, önceki kodun kalıntılarıyla yeni kod birbirine karışıyor. Ya da sondaki o minik tırnak işaretlerini almayı unutuyorsun.
-
-Bu sefer işi GARANTİYE alıyoruz. Kodun yapısını değiştirdim, CSS kısmını (Tasarım kodlarını) ayrı bir kutuya koydum ki hata verme şansı kalmasın.
-
-Lütfen şu adımları HARFİYEN uygula:
-
-GitHub'daki app.py dosyanı aç.
-
-İçindeki her şeyi SİL (Ctrl+A yap, Delete'e bas. Bembeyaz olsun).
-
-Aşağıdaki kodu BAŞINDAN SONUNA KADAR kopyala ve yapıştır.
-
-🛠️ V8 FİNAL "KURŞUN GEÇİRMEZ" KOD
-Python
-
 import streamlit as st
 import joblib
 import pandas as pd
