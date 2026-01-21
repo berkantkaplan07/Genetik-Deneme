@@ -5,10 +5,10 @@ import pandas as pd
 # Sayfa ayarı
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
-# --- V4 GÜÇLENDİRİLMİŞ TASARIM KODLARI ---
+# --- CSS: MAVİ TASARIM (BLUE THEME) ---
 css_kodu = """
 <style>
-    /* 1. Ana Arkaplan ve Yazılar */
+    /* 1. Arkaplan */
     .stApp { background-color: #F2F2F7 !important; }
     h1, h2, h3, h4, h5, p, span, div, label, .stMarkdown { color: #1C1C1E !important; }
     
@@ -31,48 +31,59 @@ css_kodu = """
         width: 100%;
     }
     
-    /* --- MENÜ (DROPDOWN) KRİTİK DÜZELTME --- */
+    /* --- MENÜ KUTULARI (MAVİ OLSUN) --- */
     
-    /* Menü Kutusunun Kendisi (Seçim yapmadan önceki hali) */
+    /* Seçim Kutusunun Kendisi (Kapalıyken) - SENİN İSTEDİĞİN MAVİ YER */
     .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-color: #d1d1d6 !important;
+        background-color: #007AFF !important; /* Arkaplan MAVİ */
+        color: white !important;              /* Yazı BEYAZ */
+        border: none !important;
+        border-radius: 10px !important;
     }
     
-    /* Açılan Liste Penceresi (Popover) - Arkaplanı BEYAZ yap */
+    /* Kutusunun içindeki yazı (Seçilen öğe) */
+    .stSelectbox div[data-baseweb="select"] span {
+        color: white !important;
+    }
+    
+    /* Sağdaki Ok İşareti (Onu da beyaz yapalım ki görünsün) */
+    .stSelectbox svg {
+        fill: white !important;
+    }
+    
+    /* --- AÇILAN LİSTE (POPOVER) --- */
     div[data-baseweb="popover"] {
-        background-color: #ffffff !important;
-        border: 1px solid #d1d1d6 !important;
+        background-color: white !important;
+        border: 1px solid #eee !important;
     }
     
-    /* Listenin içindeki seçenekler (Seçilmemişler) */
+    /* Listenin içindeki seçenekler */
     ul[data-baseweb="menu"] li {
-        background-color: #ffffff !important;
-        color: #000000 !important; /* Simsiyah yazı */
+        background-color: white !important;
+        color: black !important; /* Liste içi siyah olsun okunsun */
     }
     
-    /* Seçeneklerin üzerine gelince (Hover) veya Seçilince */
-    ul[data-baseweb="menu"] li:hover, 
-    ul[data-baseweb="menu"] li[aria-selected="true"] {
-        background-color: #007AFF !important; /* MAVİ ZEMİN */
-        color: #ffffff !important; /* BEYAZ YAZI */
+    /* Seçeneğin üzerine gelince */
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #E5F1FF !important; /* Açık mavi */
+        color: #007AFF !important;
     }
     
-    /* Sayı Kutusu (Number Input) */
-    .stNumberInput input {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-    }
+    /* --- SAYI KUTUSU (POZİSYON) --- */
+    /* Onu da hafif mavi yapalım uyumlu dursun */
     .stNumberInput div[data-baseweb="input"] {
-        background-color: #ffffff !important;
+        background-color: #E5F1FF !important;
+        border-radius: 10px !important;
+        border: 1px solid #007AFF !important;
+    }
+    .stNumberInput input {
+        color: #007AFF !important; /* Yazısı mavi olsun */
     }
     
-    /* Sonuç Kutularının Düzgün Görünmesi İçin */
+    /* Sonuç Kutusu Ayarı */
     .sonuc-kutusu {
-        padding: 20px !important;
-        margin-top: 15px !important;
-        margin-bottom: 15px !important;
+        padding: 15px !important;
+        margin-top: 10px !important;
         border-radius: 12px !important;
         border-left-width: 6px !important;
         border-left-style: solid !important;
@@ -122,7 +133,6 @@ if analyze:
     lookup_key = (c_enc, pos)
     known_disease = variant_db.get(lookup_key, None)
     
-    # Metin temizliği
     if known_disease:
         known_disease = known_disease.replace("|", ", ").replace("not provided", "").strip()
         if known_disease.endswith(","): known_disease = known_disease[:-1]
@@ -131,16 +141,13 @@ if analyze:
     prob = model.predict_proba(input_data)[0]
     is_pathogenic = prob[1] > 0.5
     
-    st.write("") # Boşluk
-    
-    # --- SONUÇ KUTULARI (DÜZELTİLMİŞ TASARIM) ---
+    st.write("") 
     
     if known_disease:
-        # Patojenik (Kayıtlı)
         html = f"""
         <div class="sonuc-kutusu" style='background-color: #ffe5e5; border-left-color: #ff3b30;'>
-            <h3 style='color: #ff3b30 !important; margin:0; font-size: 1.2rem;'>⚠️ PATOJENİK (Kayıtlı)</h3>
-            <p style='color: #333 !important; margin-top: 8px;'>Bu varyant ClinVar veritabanında tanımlıdır.</p>
+            <h3 style='color: #ff3b30 !important; margin:0; font-size: 1.1rem;'>⚠️ PATOJENİK (Kayıtlı)</h3>
+            <p style='color: #333 !important; margin-top: 5px;'>Bu varyant ClinVar veritabanında tanımlıdır.</p>
         </div>
         """
         st.markdown(html, unsafe_allow_html=True)
@@ -148,24 +155,22 @@ if analyze:
         
     else:
         if is_pathogenic:
-            # Patojenik (Tahmin)
             risk = prob[1] * 100
             html = f"""
             <div class="sonuc-kutusu" style='background-color: #fff3cd; border-left-color: #ffc107;'>
-                <h3 style='color: #d39e00 !important; margin:0; font-size: 1.2rem;'>⚠️ YÜKSEK RİSK (Tahmin)</h3>
-                <p style='color: #333 !important; margin-top: 8px;'>
+                <h3 style='color: #d39e00 !important; margin:0; font-size: 1.1rem;'>⚠️ YÜKSEK RİSK (Tahmin)</h3>
+                <p style='color: #333 !important; margin-top: 5px;'>
                     Yapay zeka <strong>%{risk:.1f}</strong> ihtimalle patojenik buldu.
                 </p>
             </div>
             """
             st.markdown(html, unsafe_allow_html=True)
         else:
-            # Benign (Tahmin)
             safe = prob[0] * 100
             html = f"""
             <div class="sonuc-kutusu" style='background-color: #d4edda; border-left-color: #28a745;'>
-                <h3 style='color: #155724 !important; margin:0; font-size: 1.2rem;'>✅ BENIGN (İyi Huylu)</h3>
-                <p style='color: #333 !important; margin-top: 8px;'>
+                <h3 style='color: #155724 !important; margin:0; font-size: 1.1rem;'>✅ BENIGN (İyi Huylu)</h3>
+                <p style='color: #333 !important; margin-top: 5px;'>
                     Yapay zeka <strong>%{safe:.1f}</strong> ihtimalle zararsız olduğunu düşünüyor.
                 </p>
             </div>
