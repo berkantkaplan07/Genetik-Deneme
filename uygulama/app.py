@@ -8,9 +8,8 @@ import pandas as pd
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
 # --------------------------------------------------------
-# 2. TASARIM (CSS) - MAVİ TEMA
+# 2. TASARIM (CSS) - SENİN İSTEDİĞİN RENKLER
 # --------------------------------------------------------
-# Tasarım kodunu ayrı bir değişkene aldım, hata riskini azaltmak için.
 css_tasarim = """
 <style>
     /* GENEL ARKAPLAN */
@@ -25,7 +24,65 @@ css_tasarim = """
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* MAVİ BUTONLAR */
+    /* --- 1. SARI OKLU YER (KAPALI KUTU) -> BEYAZ OLSUN --- */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;  /* BEYAZ ZEMİN */
+        color: #000000 !important;             /* SİYAH YAZI */
+        border: 1px solid #d1d1d6 !important;  /* İnce Gri Çerçeve */
+        border-radius: 8px !important;
+    }
+    
+    /* İçindeki yazı (Seçilen öğe) */
+    .stSelectbox div[data-baseweb="select"] span {
+        color: #000000 !important; /* Siyah Yazı */
+    }
+    
+    /* Sağdaki ok simgesi */
+    .stSelectbox svg {
+        fill: #000000 !important; /* Siyah Ok */
+    }
+
+    /* --- 2. KIRMIZI OKLU YER (AÇILAN LİSTE) -> MAVİ OLSUN --- */
+    
+    /* Listenin Çerçevesi (Popover) */
+    div[data-baseweb="popover"] {
+        background-color: #007AFF !important; /* MAVİ ZEMİN */
+        border: none !important;
+    }
+
+    /* Listenin İçi */
+    ul[data-baseweb="menu"] {
+        background-color: #007AFF !important;
+    }
+    
+    /* Seçenekler (Satırlar) */
+    ul[data-baseweb="menu"] li {
+        background-color: #007AFF !important; /* Mavi Zemin */
+        color: white !important;              /* BEYAZ YAZI */
+    }
+    
+    /* Seçeneğin üzerine gelince (Hover) - Biraz daha koyu mavi olsun */
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #0056b3 !important;
+    }
+    
+    /* Şu an seçili olan öğe */
+    ul[data-baseweb="menu"] li[aria-selected="true"] {
+        background-color: #004494 !important; /* En Koyu Mavi */
+        color: white !important;
+    }
+
+    /* --- SAYI GİRİŞ KUTUSU (POZİSYON) --- */
+    .stNumberInput div[data-baseweb="input"] {
+        background-color: #ffffff !important;
+        border: 1px solid #d1d1d6 !important;
+        border-radius: 8px !important;
+    }
+    .stNumberInput input {
+        color: #000000 !important;
+    }
+    
+    /* --- ANALİZ BUTONU --- */
     div.stButton > button {
         background-color: #007AFF !important;
         color: white !important;
@@ -34,67 +91,9 @@ css_tasarim = """
         padding: 12px 20px;
         font-weight: bold;
         width: 100%;
-        transition: 0.3s;
-    }
-    div.stButton > button:hover {
-        background-color: #005ecb !important;
-    }
-
-    /* --- MAVİ MENÜ AYARLARI --- */
-    
-    /* Seçim Kutusunun Kendisi (Kapalı Hali) */
-    .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #007AFF !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Kutunun içindeki yazı */
-    .stSelectbox div[data-baseweb="select"] span {
-        color: white !important;
-    }
-    
-    /* Ok simgesi */
-    .stSelectbox svg {
-        fill: white !important;
-    }
-
-    /* Açılan Liste (POPOVER) */
-    div[data-baseweb="popover"] {
-        background-color: #007AFF !important;
-        border: 2px solid white !important;
-    }
-
-    /* Listenin İçi */
-    ul[data-baseweb="menu"] {
-        background-color: #007AFF !important;
-    }
-    
-    /* Seçenekler */
-    ul[data-baseweb="menu"] li {
-        background-color: #007AFF !important;
-        color: white !important;
-    }
-    
-    /* Seçeneğin üzerine gelince */
-    ul[data-baseweb="menu"] li:hover {
-        background-color: #004494 !important;
-    }
-
-    /* SAYI KUTUSU */
-    .stNumberInput div[data-baseweb="input"] {
-        background-color: #E5F1FF !important;
-        border: 2px solid #007AFF !important;
-        border-radius: 8px !important;
-    }
-    .stNumberInput input {
-        color: #007AFF !important;
-        font-weight: bold !important;
     }
 </style>
 """
-# CSS kodunu sayfaya uygula
 st.markdown(css_tasarim, unsafe_allow_html=True)
 
 
