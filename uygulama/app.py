@@ -5,15 +5,15 @@ import pandas as pd
 # Sayfa ayarı
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
-# --- CSS İLE RENK DÜZELTME (DROPDOWN DAHİL) ---
+# --- CSS: NÜKLEER RENK DÜZELTME ---
 st.markdown("""
     <style>
-    /* 1. Ana Arkaplan */
+    /* 1. Tüm Sayfa Arkaplanı */
     .stApp {
         background-color: #F2F2F7 !important;
     }
     
-    /* 2. Tüm Ana Yazılar Siyah */
+    /* 2. Tüm Ana Metinler */
     h1, h2, h3, h4, h5, p, span, div, label {
         color: #1C1C1E !important;
     }
@@ -36,42 +36,48 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* --- KRİTİK DÜZELTME: AÇILIR MENÜ (DROPDOWN) --- */
+    /* --- DROPDOWN (AÇILIR MENÜ) DÜZELTME --- */
     
-    /* Menü Kutusunun İçi (Seçilmemiş hali) */
+    /* Menü Kutusunun İçi (Kapalıyken) */
     .stSelectbox div[data-baseweb="select"] > div {
-        background-color: white !important;
-        color: black !important;
-        border: 1px solid #e5e5e5 !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
     }
     
-    /* Menüye Tıklayınca Açılan Liste (POPOVER) */
-    div[data-baseweb="popover"], div[data-baseweb="popover"] > div {
-        background-color: white !important;
+    /* Açılan Liste Penceresi (Popover) */
+    div[data-baseweb="popover"] {
+        background-color: #ffffff !important;
+        border: 1px solid #ddd !important;
     }
     
-    /* Listenin İçindeki Seçenekler (Option) */
-    ul[data-baseweb="menu"] li {
-        background-color: white !important;
-        color: black !important;
+    /* Listenin İçindeki Tüm Yazılar ve Arkaplanlar */
+    div[data-baseweb="popover"] div, 
+    div[data-baseweb="popover"] span,
+    div[data-baseweb="popover"] li,
+    ul[data-baseweb="menu"] {
+        color: #000000 !important;
+        background-color: #ffffff !important;
     }
     
-    /* Listenin içindeki yazıların kesin siyah olması için */
-    div[data-baseweb="popover"] * {
-        color: black !important;
-    }
-    
-    /* Seçeneğin üzerine gelince (Hover) gri olsun */
-    ul[data-baseweb="menu"] li:hover {
+    /* Seçeneklerin üzerine gelince (Hover) hafif gri olsun */
+    ul[data-baseweb="menu"] li:hover,
+    ul[data-baseweb="menu"] li:focus {
         background-color: #F2F2F7 !important;
+    }
+    
+    /* Seçili olan öğe */
+    li[aria-selected="true"] {
+        background-color: #E5F1FF !important;
+        color: #007AFF !important;
     }
 
     /* Sayı Kutusu (Number Input) */
     .stNumberInput input {
-        color: black !important;
+        color: #000000 !important;
+        background-color: #ffffff !important;
     }
     .stNumberInput div[data-baseweb="input"] {
-        background-color: white !important;
+        background-color: #ffffff !important;
     }
     
     </style>
@@ -88,15 +94,15 @@ try:
     type_mapping = data['type_mapping']
     variant_db = data['variant_db']
 except:
-    st.error("Model yüklenemedi. Lütfen dosyanın GitHub'da olduğundan emin olun.")
+    st.error("⚠️ Model dosyası bulunamadı. GitHub'a 'genetik_ios_model.pkl' dosyasını yüklediğinden emin ol.")
     st.stop()
 
 # --- ARAYÜZ ---
-st.markdown("<h1 style='text-align: center;'>Tıbbi Genetik Asistanı</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666 !important;'>Genetik varyant analizi ve sendrom eşleştirme sistemi</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🧬 Tıbbi Genetik Asistanı</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666 !important;'>Yapay Zeka Destekli Varyant Analizi</p>", unsafe_allow_html=True)
 
 # Kart: Veri Girişi
-st.markdown("### 🧬 Varyant Bilgileri")
+st.markdown("### Varyant Bilgileri")
 
 # Kromozom ve Mutasyon Tipi
 col1, col2 = st.columns(2)
@@ -106,10 +112,10 @@ with col2:
     v_type = st.selectbox("Mutasyon Tipi", options=list(type_mapping.keys()))
 
 # Pozisyon
-pos = st.number_input("Pozisyon (GRCh38)", min_value=1, value=43044295)
+pos = st.number_input("Pozisyon (GRCh38)", min_value=1, value=5227002)
 
 st.write("") 
-analyze = st.button("Analiz Et")
+analyze = st.button("Analiz Et", type="primary")
 
 # --- SONUÇ MANTIĞI ---
 if analyze:
@@ -119,6 +125,11 @@ if analyze:
     lookup_key = (c_enc, pos)
     known_disease = variant_db.get(lookup_key, None)
     
+    # Hastalık adını biraz temizleyelim (Clean Text)
+    if known_disease:
+        known_disease = known_disease.replace("|", ", ").replace("not provided", "").strip()
+        if known_disease.endswith(","): known_disease = known_disease[:-1]
+    
     input_data = pd.DataFrame([[c_enc, pos, t_enc]], columns=['Chromosome_encoded', 'Position', 'Type_encoded'])
     prob = model.predict_proba(input_data)[0]
     is_pathogenic = prob[1] > 0.5
@@ -127,24 +138,24 @@ if analyze:
     
     if known_disease:
         st.markdown(f"""
-        <div style='background-color: #ffe5e5; padding: 15px; border-radius: 15px; border-left: 5px solid #ff3b30;'>
+        <div style='background-color: #ffe5e5; padding: 15px; border-radius: 15px; border-left: 6px solid #ff3b30; margin-bottom: 10px;'>
             <h3 style='color: #ff3b30 !important; margin:0;'>⚠️ PATOJENİK (Kayıtlı)</h3>
-            <p style='color: #333 !important;'>Bu varyant ClinVar veritabanında mevcuttur.</p>
+            <p style='color: #333 !important; margin-top: 5px;'>Bu varyant ClinVar veritabanında tanımlıdır.</p>
         </div>
         """, unsafe_allow_html=True)
-        st.info(f"**İlişkili Hastalık:** {known_disease}")
+        
+        st.info(f"**İlişkili Hastalık / Sendrom:**\n\n{known_disease}")
+        
     else:
         if is_pathogenic:
             st.markdown(f"""
-            <div style='background-color: #fff3cd; padding: 15px; border-radius: 15px; border-left: 5px solid #ffc107;'>
+            <div style='background-color: #fff3cd; padding: 15px; border-radius: 15px; border-left: 6px solid #ffc107;'>
                 <h3 style='color: #d39e00 !important; margin:0;'>⚠️ YÜKSEK RİSK (Tahmin)</h3>
-                <p style='color: #333 !important;'>Literatürde yok ama yapay zeka <strong>%{prob[1]*100:.1f}</strong> ihtimalle patojenik buldu.</p>
+                <p style='color: #333 !important; margin-top: 5px;'>Literatürde yok ama yapay zeka <strong>%{prob[1]*100:.1f}</strong> ihtimalle patojenik buldu.</p>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
-            <div style='background-color: #d4edda; padding: 15px; border-radius: 15px; border-left: 5px solid #28a745;'>
+            <div style='background-color: #d4edda; padding: 15px; border-radius: 15px; border-left: 6px solid #28a745;'>
                 <h3 style='color: #155724 !important; margin:0;'>✅ BENIGN (İyi Huylu)</h3>
-                <p style='color: #333 !important;'>Yapay zeka <strong>%{prob[0]*100:.1f}</strong> ihtimalle zararsız olduğunu düşünüyor.</p>
-            </div>
-            """, unsafe_allow_html=True)
+                <p style='color: #333 !important; margin-top: 5px;'>Yapay zeka <strong>%{prob[0]*10
