@@ -3,20 +3,34 @@ import joblib
 import pandas as pd
 
 # --------------------------------------------------------
-# 1. AYARLAR
+# 1. AYARLAR & TEMA ZORLAMASI
 # --------------------------------------------------------
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
 # --------------------------------------------------------
-# 2. TASARIM (CSS) - LACİVERT İSTEĞİNE GÖRE AYARLANDI
+# 2. CSS TASARIMI (LACİVERT & BEYAZ - ZORLANMIŞ)
 # --------------------------------------------------------
 css_tasarim = """
 <style>
-    /* GENEL ARKAPLAN */
-    .stApp { background-color: #F2F2F7 !important; }
-    h1, h2, h3, h4, h5, p, span, div, label { color: #1C1C1E !important; }
+    /* 1. TÜM SAYFAYI ZORLA AÇIK RENK YAP (Karanlık modu engelle) */
+    :root {
+        --primary-color: #002147;
+        --background-color: #F2F2F7;
+        --secondary-background-color: #ffffff;
+        --text-color: #1C1C1E;
+        --font: sans-serif;
+    }
+    
+    .stApp {
+        background-color: #F2F2F7 !important;
+        color: #1C1C1E !important;
+    }
+    
+    h1, h2, h3, h4, h5, p, span, div, label {
+        color: #1C1C1E !important;
+    }
 
-    /* BEYAZ KARTLAR */
+    /* 2. BEYAZ KARTLAR */
     div[data-testid="stVerticalBlock"] > div {
         background-color: white !important;
         border-radius: 15px;
@@ -24,76 +38,76 @@ css_tasarim = """
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* --- 1. KAPALI KUTU (SARI OK) -> HALA BEYAZ KALSIN MI? EVET --- */
-    .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 1px solid #d1d1d6 !important;
-        border-radius: 8px !important;
-    }
-    .stSelectbox div[data-baseweb="select"] span {
-        color: #000000 !important;
-    }
-    .stSelectbox svg {
-        fill: #000000 !important;
-    }
-
-    /* --- 2. AÇILAN LİSTE (YEŞİL OK 1) -> LACİVERT OLSUN --- */
+    /* 3. AÇILAN LİSTE (YEŞİL OK 1) -> LACİVERT OLACAK! */
+    /* Bu kısım Dropdown açıldığında çıkan listeyi hedefler */
     
-    /* Listenin Dış Kutusu (Popover) */
     div[data-baseweb="popover"],
-    div[data-baseweb="popover"] > div {
-        background-color: #002147 !important; /* LACİVERT */
-        border: none !important;
+    div[data-baseweb="popover"] > div,
+    ul[data-baseweb="menu"] {
+        background-color: #002147 !important; /* LACİVERT ZEMİN */
     }
 
-    /* Listenin İçindeki Seçenekler */
-    ul[data-baseweb="menu"] {
-        background-color: #002147 !important; /* LACİVERT */
-    }
-    
+    /* Listedeki herbir seçenek */
     ul[data-baseweb="menu"] li {
-        background-color: #002147 !important; /* LACİVERT ZEMİN */
-        color: white !important;              /* BEYAZ YAZI */
+        background-color: #002147 !important;
+        color: white !important; /* BEYAZ YAZI */
     }
     
-    /* Seçeneğin üzerine gelince (Hover) - Biraz daha açık mavi */
+    /* Seçeneğin içindeki metin (span) */
+    ul[data-baseweb="menu"] li span {
+        color: white !important;
+    }
+    
+    /* Mouse ile üzerine gelince (Hover) */
     ul[data-baseweb="menu"] li:hover {
-        background-color: #004080 !important;
+        background-color: #004080 !important; /* Daha açık lacivert */
     }
     
-    /* Seçili olan öğe */
+    /* Şu an seçili olan seçenek */
     ul[data-baseweb="menu"] li[aria-selected="true"] {
         background-color: #0056b3 !important;
         color: white !important;
     }
 
-    /* --- 3. SAYI GİRİŞ KUTUSU (YEŞİL OK 2) -> LACİVERT OLSUN --- */
+    /* 4. KAPALI KUTU (SARI OK) -> BEYAZ KALACAK */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: black !important;
+        border: 1px solid #d1d1d6 !important;
+    }
+    /* Kapalı kutu içindeki yazı */
+    .stSelectbox div[data-baseweb="select"] span {
+        color: black !important;
+    }
+    /* Ok işareti */
+    .stSelectbox svg {
+        fill: black !important;
+    }
+
+    /* 5. SAYI GİRİŞ KUTUSU (YEŞİL OK 2) -> LACİVERT OLACAK */
+    /* Kutunun kendisi */
     .stNumberInput div[data-baseweb="input"] {
-        background-color: #002147 !important; /* LACİVERT ZEMİN */
+        background-color: #002147 !important; /* LACİVERT */
         border: 1px solid #004080 !important;
-        border-radius: 8px !important;
     }
-    
-    /* İçindeki Rakam Rengi */
+    /* İçindeki rakam */
     .stNumberInput input {
-        color: white !important; /* BEYAZ YAZI */
+        color: white !important; /* BEYAZ RAKAM */
+        caret-color: white !important; /* Yanıp sönen imleç */
     }
-    
-    /* Artı/Eksi Butonları (Eğer Varsa) */
-    .stNumberInput div[data-baseweb="input"] button {
+    /* Artı-Eksi butonları (varsa) */
+    .stNumberInput button {
         color: white !important;
     }
 
-    /* --- BUTON --- */
+    /* BUTON */
     div.stButton > button {
-        background-color: #002147 !important; /* Buton da Lacivert olsun uyumlu dursun */
+        background-color: #002147 !important;
         color: white !important;
-        border-radius: 10px;
         border: none;
         padding: 12px 20px;
         font-weight: bold;
-        width: 100%;
+        border-radius: 10px;
     }
 </style>
 """
