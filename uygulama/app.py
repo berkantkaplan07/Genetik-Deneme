@@ -8,7 +8,7 @@ import pandas as pd
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
 # --------------------------------------------------------
-# 2. TASARIM (CSS) - SENİN İSTEDİĞİN RENK KOMBİNASYONU
+# 2. TASARIM (CSS) - LACİVERT İSTEĞİNE GÖRE AYARLANDI
 # --------------------------------------------------------
 css_tasarim = """
 <style>
@@ -24,69 +24,70 @@ css_tasarim = """
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
 
-    /* --- 1. KAPALI KUTU (SARI OK) -> BEYAZ OLSUN --- */
-    /* Kutunun kendisi */
+    /* --- 1. KAPALI KUTU (SARI OK) -> HALA BEYAZ KALSIN MI? EVET --- */
     .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #ffffff !important;  /* BEYAZ ZEMİN */
-        color: #000000 !important;             /* SİYAH YAZI */
+        background-color: #ffffff !important;
+        color: #000000 !important;
         border: 1px solid #d1d1d6 !important;
         border-radius: 8px !important;
     }
-    
-    /* İçindeki yazı */
     .stSelectbox div[data-baseweb="select"] span {
         color: #000000 !important;
     }
-    
-    /* Sağdaki ok simgesi */
     .stSelectbox svg {
         fill: #000000 !important;
     }
 
-    /* --- 2. AÇILAN LİSTE (KIRMIZI OK) -> MAVİ OLSUN --- */
+    /* --- 2. AÇILAN LİSTE (YEŞİL OK 1) -> LACİVERT OLSUN --- */
     
-    /* Listenin Dış Çerçevesi (Popover) - Zorla Mavi Yap */
+    /* Listenin Dış Kutusu (Popover) */
     div[data-baseweb="popover"],
     div[data-baseweb="popover"] > div {
-        background-color: #007AFF !important;
+        background-color: #002147 !important; /* LACİVERT */
         border: none !important;
     }
 
-    /* Listenin İçindeki Tüm Satırlar */
+    /* Listenin İçindeki Seçenekler */
     ul[data-baseweb="menu"] {
-        background-color: #007AFF !important;
+        background-color: #002147 !important; /* LACİVERT */
     }
     
     ul[data-baseweb="menu"] li {
-        background-color: #007AFF !important; /* Mavi Zemin */
+        background-color: #002147 !important; /* LACİVERT ZEMİN */
         color: white !important;              /* BEYAZ YAZI */
     }
     
-    /* Satırların içindeki yazı span'ları da beyaz olsun */
-    ul[data-baseweb="menu"] li span {
-        color: white !important;
+    /* Seçeneğin üzerine gelince (Hover) - Biraz daha açık mavi */
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #004080 !important;
     }
     
-    /* Üzerine gelince (Hover) veya Seçilince */
-    ul[data-baseweb="menu"] li:hover,
+    /* Seçili olan öğe */
     ul[data-baseweb="menu"] li[aria-selected="true"] {
-        background-color: #0056b3 !important; /* Koyu Mavi */
+        background-color: #0056b3 !important;
         color: white !important;
     }
 
-    /* --- SAYI GİRİŞ KUTUSU --- */
+    /* --- 3. SAYI GİRİŞ KUTUSU (YEŞİL OK 2) -> LACİVERT OLSUN --- */
     .stNumberInput div[data-baseweb="input"] {
-        background-color: #ffffff !important;
-        border: 1px solid #d1d1d6 !important;
+        background-color: #002147 !important; /* LACİVERT ZEMİN */
+        border: 1px solid #004080 !important;
         border-radius: 8px !important;
     }
+    
+    /* İçindeki Rakam Rengi */
     .stNumberInput input {
-        color: #000000 !important;
+        color: white !important; /* BEYAZ YAZI */
     }
     
-    /* --- ANALİZ BUTONU --- */
+    /* Artı/Eksi Butonları (Eğer Varsa) */
+    .stNumberInput div[data-baseweb="input"] button {
+        color: white !important;
+    }
+
+    /* --- BUTON --- */
     div.stButton > button {
-        background-color: #007AFF !important;
+        background-color: #002147 !important; /* Buton da Lacivert olsun uyumlu dursun */
         color: white !important;
         border-radius: 10px;
         border: none;
