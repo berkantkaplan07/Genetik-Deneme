@@ -1,54 +1,51 @@
-
 import streamlit as st
 import joblib
 import pandas as pd
 
+# Sayfa ayarı
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
-# --- IOS STİLİ İÇİN CSS (SİHİRLİ DOKUNUŞ) ---
+# --- IOS STİLİ VE RENK DÜZELTME (GÜNCELLENDİ) ---
 st.markdown("""
     <style>
-    /* Genel Arkaplan ve Font */
+    /* 1. Ana Arkaplanı Açık Gri Yap (Karanlık modu ez) */
     .stApp {
-        background-color: #F2F2F7; /* iOS Gri Arkaplan */
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #F2F2F7 !important;
     }
-
-    /* Kart Görünümü (Beyaz kutular) */
+    
+    /* 2. Tüm Yazıları Siyah Yap (Görünmezliği engelle) */
+    h1, h2, h3, h4, h5, p, span, div, label {
+        color: #1C1C1E !important;
+    }
+    
+    /* 3. Kart Görünümü (Beyaz Kutular) */
     div[data-testid="stVerticalBlock"] > div {
-        background-color: white;
-        padding: 20px;
+        background-color: white !important;
         border-radius: 20px;
+        padding: 20px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-
-    /* Başlıklar */
-    h1 {
-        color: #1C1C1E;
-        font-weight: 700;
-        text-align: center;
-        padding-bottom: 20px;
-    }
-
-    /* Butonlar (iOS Mavi) */
+    
+    /* 4. Butonlar (Mavi) */
     div.stButton > button {
-        background-color: #007AFF;
-        color: white;
-        border-radius: 14px;
+        background-color: #007AFF !important;
+        color: white !important;
+        border-radius: 12px;
         border: none;
-        padding: 10px 24px;
+        padding: 12px 24px;
         font-weight: 600;
-        width: 100%;
-        transition: all 0.2s;
     }
-    div.stButton > button:hover {
-        background-color: #0056b3;
-        transform: scale(1.02);
+    
+    /* 5. Giriş Kutularının İçi (Dropdown vb.) */
+    .stSelectbox div[data-baseweb="select"] > div, 
+    .stNumberInput div[data-baseweb="input"] > div {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 1px solid #e5e5e5 !important;
     }
-
-    /* Giriş Kutuları */
-    .stSelectbox, .stNumberInput {
-        border-radius: 10px;
+    /* Dropdown açılınca çıkan menü */
+    ul[data-baseweb="menu"] {
+        background-color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -64,68 +61,63 @@ try:
     type_mapping = data['type_mapping']
     variant_db = data['variant_db']
 except:
-    st.error("Sistem yükleniyor, lütfen bekleyin...")
+    st.error("Model yüklenemedi. Lütfen dosyanın GitHub'da olduğundan emin olun.")
     st.stop()
 
 # --- ARAYÜZ ---
-st.title("Tıbbi Genetik Asistanı")
-st.caption("Genetik varyant analizi ve sendrom eşleştirme sistemi")
+st.markdown("<h1 style='text-align: center;'>Tıbbi Genetik Asistanı</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666 !important;'>Genetik varyant analizi ve sendrom eşleştirme sistemi</p>", unsafe_allow_html=True)
 
-# Kart 1: Veri Girişi
+# Kart: Veri Girişi
 st.markdown("### 🧬 Varyant Bilgileri")
+
+# Kromozom ve Mutasyon Tipi
 col1, col2 = st.columns(2)
 with col1:
     chrom = st.selectbox("Kromozom", options=[str(i) for i in range(1, 23)] + ['X', 'Y', 'MT'])
-    pos = st.number_input("Pozisyon (GRCh38)", min_value=1, value=43044295)
-
 with col2:
     v_type = st.selectbox("Mutasyon Tipi", options=list(type_mapping.keys()))
-    st.write("") # Hizalama boşluğu
-    st.write("")
 
+# Pozisyon
+pos = st.number_input("Pozisyon (GRCh38)", min_value=1, value=43044295)
+
+st.write("") 
 analyze = st.button("Analiz Et")
 
 # --- SONUÇ MANTIĞI ---
 if analyze:
-    # 1. Encoding
     c_enc = int(chrom) if chrom.isdigit() else (23 if chrom=='X' else (24 if chrom=='Y' else 25))
     t_enc = type_mapping[v_type]
-
-    # 2. Önce Veritabanına Bak (BİLİNEN VARYANT MI?)
-    # Tuple olarak anahtar oluşturuyoruz
+    
     lookup_key = (c_enc, pos)
     known_disease = variant_db.get(lookup_key, None)
-
-    # 3. Yapay Zeka Tahmini
+    
     input_data = pd.DataFrame([[c_enc, pos, t_enc]], columns=['Chromosome_encoded', 'Position', 'Type_encoded'])
     prob = model.predict_proba(input_data)[0]
     is_pathogenic = prob[1] > 0.5
-
-    st.markdown("---")
-
-    # SENARYO A: LİTERATÜRDE VARSA
+    
+    st.divider()
+    
     if known_disease:
-        st.error("🚨 LİTERATÜRDE EŞLEŞME BULUNDU")
         st.markdown(f"""
         <div style='background-color: #ffe5e5; padding: 15px; border-radius: 15px; border-left: 5px solid #ff3b30;'>
-            <h3 style='color: #ff3b30; margin:0;'>PATOJENİK VARYANT</h3>
-            <p>Bu varyant ClinVar veritabanında kayıtlıdır.</p>
+            <h3 style='color: #ff3b30 !important; margin:0;'>⚠️ PATOJENİK (Kayıtlı)</h3>
+            <p style='color: #333 !important;'>Bu varyant ClinVar veritabanında mevcuttur.</p>
         </div>
         """, unsafe_allow_html=True)
-
-        st.markdown("#### 🏥 İlişkili Hastalık / Sendrom:")
-        st.info(known_disease)
-
-        st.metric(label="Yapay Zeka Doğrulama Skoru", value=f"%{prob[1]*100:.1f}")
-
-    # SENARYO B: LİTERATÜRDE YOKSA (AI TAHMİNİ)
+        st.info(f"**İlişkili Hastalık:** {known_disease}")
     else:
-        st.markdown("#### 🤖 Yapay Zeka Tahmini (Novel Varyant)")
         if is_pathogenic:
-            st.warning("⚠️ YÜKSEK RİSK TESPİT EDİLDİ")
-            st.write(f"Bu pozisyonda bilinen bir kayıt yok, ancak yapay zeka varyant özelliklerine göre **%{prob[1]*100:.1f}** ihtimalle Patojenik olduğunu düşünüyor.")
-            st.markdown("*Olası Etkiler:* Protein fonksiyon kaybı veya yapısal bozukluk.")
+            st.markdown(f"""
+            <div style='background-color: #fff3cd; padding: 15px; border-radius: 15px; border-left: 5px solid #ffc107;'>
+                <h3 style='color: #d39e00 !important; margin:0;'>⚠️ YÜKSEK RİSK (Tahmin)</h3>
+                <p style='color: #333 !important;'>Literatürde yok ama yapay zeka <strong>%{prob[1]*100:.1f}</strong> ihtimalle patojenik buldu.</p>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.success("✅ İYİ HUYLU (BENIGN) GÖRÜNÜYOR")
-            st.write(f"Yapay zeka bu varyantın **%{prob[0]*100:.1f}** ihtimalle zararsız olduğunu öngörüyor.")
-
+            st.markdown(f"""
+            <div style='background-color: #d4edda; padding: 15px; border-radius: 15px; border-left: 5px solid #28a745;'>
+                <h3 style='color: #155724 !important; margin:0;'>✅ BENIGN (İyi Huylu)</h3>
+                <p style='color: #333 !important;'>Yapay zeka <strong>%{prob[0]*100:.1f}</strong> ihtimalle zararsız olduğunu düşünüyor.</p>
+            </div>
+            """, unsafe_allow_html=True)
