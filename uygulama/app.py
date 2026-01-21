@@ -5,20 +5,20 @@ import pandas as pd
 # Sayfa ayarı
 st.set_page_config(page_title="Genetik Asistanı", page_icon="🧬", layout="centered")
 
-# --- IOS STİLİ VE RENK DÜZELTME (GÜNCELLENDİ) ---
+# --- CSS İLE RENK DÜZELTME (DROPDOWN DAHİL) ---
 st.markdown("""
     <style>
-    /* 1. Ana Arkaplanı Açık Gri Yap (Karanlık modu ez) */
+    /* 1. Ana Arkaplan */
     .stApp {
         background-color: #F2F2F7 !important;
     }
     
-    /* 2. Tüm Yazıları Siyah Yap (Görünmezliği engelle) */
+    /* 2. Tüm Ana Yazılar Siyah */
     h1, h2, h3, h4, h5, p, span, div, label {
         color: #1C1C1E !important;
     }
     
-    /* 3. Kart Görünümü (Beyaz Kutular) */
+    /* 3. Kartlar (Beyaz Kutular) */
     div[data-testid="stVerticalBlock"] > div {
         background-color: white !important;
         border-radius: 20px;
@@ -26,7 +26,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     
-    /* 4. Butonlar (Mavi) */
+    /* 4. Butonlar */
     div.stButton > button {
         background-color: #007AFF !important;
         color: white !important;
@@ -36,17 +36,44 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* 5. Giriş Kutularının İçi (Dropdown vb.) */
-    .stSelectbox div[data-baseweb="select"] > div, 
-    .stNumberInput div[data-baseweb="input"] > div {
-        background-color: #ffffff !important;
-        color: #000000 !important;
+    /* --- KRİTİK DÜZELTME: AÇILIR MENÜ (DROPDOWN) --- */
+    
+    /* Menü Kutusunun İçi (Seçilmemiş hali) */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background-color: white !important;
+        color: black !important;
         border: 1px solid #e5e5e5 !important;
     }
-    /* Dropdown açılınca çıkan menü */
-    ul[data-baseweb="menu"] {
+    
+    /* Menüye Tıklayınca Açılan Liste (POPOVER) */
+    div[data-baseweb="popover"], div[data-baseweb="popover"] > div {
         background-color: white !important;
     }
+    
+    /* Listenin İçindeki Seçenekler (Option) */
+    ul[data-baseweb="menu"] li {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    /* Listenin içindeki yazıların kesin siyah olması için */
+    div[data-baseweb="popover"] * {
+        color: black !important;
+    }
+    
+    /* Seçeneğin üzerine gelince (Hover) gri olsun */
+    ul[data-baseweb="menu"] li:hover {
+        background-color: #F2F2F7 !important;
+    }
+
+    /* Sayı Kutusu (Number Input) */
+    .stNumberInput input {
+        color: black !important;
+    }
+    .stNumberInput div[data-baseweb="input"] {
+        background-color: white !important;
+    }
+    
     </style>
 """, unsafe_allow_html=True)
 
